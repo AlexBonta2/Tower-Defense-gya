@@ -13,6 +13,18 @@ public class scrip : MonoBehaviour
 
     public Text text;
 
+    void Start()
+    {
+        GameObject path = GameObject.Find("Path"); // förklarar sig själv
+
+        punkter = new Transform[path.transform.childCount]; // 4 då
+
+        for (int i = 0; i < path.transform.childCount; i++)
+        {
+            punkter[i] = path.transform.GetChild(i);
+        } //så svår att läsa men den rullar medans den är mindre än 4 
+    }
+
     void Update()
     {
         Rör();
