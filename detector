@@ -1,0 +1,120 @@
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
+
+public class detector : MonoBehaviour
+{
+    public float range = 15f;
+    public Text mängd;
+
+    public List<GameObject> fiender = new List<GameObject>();
+
+    public int fiendemängd;
+
+    public float skadetid = 1f;
+    public int skada = 10;
+
+    private float timer = 0f;
+
+   
+
+    void Start()
+    {
+        CircleCollider2D radius =
+            gameObject.AddComponent<CircleCollider2D>();
+
+        radius.radius = range;
+        radius.isTrigger = true;
+    }
+
+    private void OnTriggerEnter2D(Collider2D fiende) //fiende gå in
+    {
+        if (fiende.gameObject.layer == 7)
+        {
+            if (!fiender.Contains(fiende.gameObject))
+            {
+                fiender.Add(fiende.gameObject);
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D fiende) //fiende gå ut
+    {
+        if (fiende.gameObject.layer == 7)
+        {
+            fiender.Remove(fiende.gameObject);
+        }
+    }
+
+    void Update()
+    {
+        fiender.RemoveAll(fiende => fiende == null); //ta bort förstörda fiender ur listan
+ fiendemängd = fiender.Count; //räkna
+
+        if (mängd != null) //visa mängden av fineder på texten så länge null är inte på listnan
+        {
+           
+            mängd.text = fiendemängd.ToString();
+        }
+
+        timer += Time.deltaTime;
+
+
+
+
+
+        if (timer >= skadetid) //loop
+        {
+            timer -= skadetid;
+            SkadaFiende();
+        }
+    }
+
+    void SkadaFiende()
+    {
+        GameObject target = FåTarget();
+
+        if (target == null)
+        {
+            return; //man fattar
+        }
+
+        scrip fiendeScript = target.GetComponent<scrip>();
+
+        if (fiendeScript != null) //kanske för mycket men
+        {
+            fiendeScript.TaSkada(skada);
+        }
+    }
+
+    GameObject FåTarget()
+    {
+        float högstaTimer = float.NegativeInfinity; //den börjar med att högsta timern den har hitta i början är något ofattbart litet eftersom varför inte
+        GameObject targetFiende = null;
+
+        foreach (GameObject fiende in fiender)
+        {
+            if (fiende == null)
+            {
+                continue;
+            }
+
+            scrip fiendeScript = fiende.GetComponent<scrip>();
+
+            if (fiendeScript == null)
+            {
+                continue;
+            }
+
+            if (fiendeScript.timer > högstaTimer)
+            {
+                högstaTimer = fiendeScript.timer;
+                targetFiende = fiende;
+            }
+        }
+
+        return targetFiende;
+    }
+}
